@@ -1,2 +1,2 @@
-# PROYECTO1_UMG_REDES1
-Uso de un protocolo existente
+# PROJECT_UMG_NETWORKS1
+Use of an existing protocol
