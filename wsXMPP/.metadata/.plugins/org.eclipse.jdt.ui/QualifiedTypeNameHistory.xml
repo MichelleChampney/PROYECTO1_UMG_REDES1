@@ -1,2 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy/>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.Chat"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.XMPPConnection"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.Roster"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.muc.MultiUserChat"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.Form"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.muc.InvitationListener"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterGroup"/>
+<fullyQualifiedTypeName name="java.util.Map"/>
+<fullyQualifiedTypeName name="java.util.concurrent.ConcurrentHashMap"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterEntry"/>
+<fullyQualifiedTypeName name="java.util.Collection"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.ChatState"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.ChatStateListener"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.ChatManagerListener"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer"/>
+<fullyQualifiedTypeName name="java.io.File"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.FileTransferManager"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.FileTransfer.Status"/>
+</qualifiedTypeNameHistroy>

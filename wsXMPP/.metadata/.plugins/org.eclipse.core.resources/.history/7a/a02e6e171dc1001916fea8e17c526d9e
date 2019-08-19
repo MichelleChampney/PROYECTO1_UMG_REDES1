@@ -1,0 +1,59 @@
+package com.xmpp.tarea;
+
+import java.util.Scanner;
+
+import org.jivesoftware.smack.Roster;
+
+import com.xmpp.imp.XmppClient;
+
+/**
+ * Hello world!
+ *
+ */
+public class App {
+	public static void main(String[] args) throws Exception {
+
+		String username = "ben1806";
+		String password = "abcd1234";
+
+		XmppClient xmppManager = new XmppClient("alumchat.xyz", 5222);
+
+		xmppManager.init();
+		// xmppManager.createAccountForUser();
+		//xmppManager.deleteAccountForUser();
+		Roster roster = null;
+		XmppClient.addGroup(roster, "GrupoPrueba");
+
+		xmppManager.performLogin(username, password);
+		xmppManager.setStatus(true, "Hello everyone");
+
+		String buddyJID = "amanda1";
+		String buddyName = "amanda1";
+		xmppManager.createEntry(buddyJID, buddyName);
+
+		Scanner teclado = new Scanner(System.in);
+		
+		while (xmppManager.isConnected()) {
+			
+			String cadena = teclado.nextLine();
+
+			if (!cadena.isEmpty()) {
+
+				if (cadena.contains("f*ck")) {
+					System.out.println("Hasta luego");
+					xmppManager.destroy();
+					
+				} else {
+					xmppManager.sendMessage(cadena, "amanda1@alumchat.xyz");
+					
+				}
+
+			}
+
+		}
+		
+		teclado.close();		
+		
+
+	}
+}
