@@ -3,10 +3,7 @@
 <fullyQualifiedTypeName name="org.jivesoftware.smack.Chat"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.XMPPConnection"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.Roster"/>
-<fullyQualifiedTypeName name="org.jivesoftware.smackx.muc.MultiUserChat"/>
-<fullyQualifiedTypeName name="org.jivesoftware.smackx.Form"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.muc.InvitationListener"/>
-<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterGroup"/>
 <fullyQualifiedTypeName name="java.util.Map"/>
 <fullyQualifiedTypeName name="java.util.concurrent.ConcurrentHashMap"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smack.RosterEntry"/>
@@ -18,4 +15,18 @@
 <fullyQualifiedTypeName name="java.io.File"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.FileTransferManager"/>
 <fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.FileTransfer.Status"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.RosterGroup"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="java.util.ArrayList"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.filter.PacketFilter"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smack.PacketCollector"/>
+<fullyQualifiedTypeName name="java.util.Iterator"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.GroupChatInvitation"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.muc.MultiUserChat"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.Form"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.FormField"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.IncomingFileTransfer"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.FileTransferListener"/>
+<fullyQualifiedTypeName name="org.jivesoftware.smackx.filetransfer.FileTransferRequest"/>
+<fullyQualifiedTypeName name="com.xmpp.imp.XmppClient.GroupChat"/>
 </qualifiedTypeNameHistroy>
