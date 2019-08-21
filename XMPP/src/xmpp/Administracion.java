@@ -1,20 +1,39 @@
 package xmpp;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 
 public class Administracion extends Thread {
     
-    public static void RegistrarNuevaCuenta(ConnectionConfiguration pConfiguracion, String pUsuario, String pClave)
+    public static void RegistrarNuevaCuenta()
     {
         try
         {
-            XMPPConnection lConnection = new XMPPConnection(pConfiguracion);
+            Scanner scan = new Scanner(System.in);
+            System.out.print("Ingrese el nombre del usuario: ");
+            String lNombreUsuario = scan.nextLine();
+            System.out.print("Ingrese el usuario: ");
+            String lUsuario = scan.nextLine();
+            System.out.print("Ingrese la clave: ");
+            String lClave = scan.nextLine();
+            System.out.print("Ingrese una descripcion breve de la cuenta: ");
+            String lDescripcion = scan.nextLine();
+         
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("name", lNombreUsuario);
+            map.put("text", lDescripcion);
+            
+            XMPPConnection lConnection = new XMPPConnection(XMPP.gConfiguration);
             lConnection.connect(); 
             AccountManager lManager = lConnection.getAccountManager();
-            lManager.createAccount(pUsuario,pClave);
+            lManager.createAccount(lUsuario,lClave,map);
             lConnection.disconnect();
+            
+            System.out.println("Cuenta registrada correctamente.");
         }
         catch(Exception ex)
         {
@@ -22,28 +41,21 @@ public class Administracion extends Thread {
         }
     }
     
-    public static XMPPConnection IniciarSesion(ConnectionConfiguration pConfiguracion, String pUsuario, String pClave)
-    {
-        XMPPConnection lConnection = null;
-        try
-        {
-            lConnection = new XMPPConnection(pConfiguracion);
-            lConnection.connect(); 
-            lConnection.login(pUsuario, pClave);
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-        }
-        return lConnection;
-    }
-    
-    public static void CerrarSesion(XMPPConnection pConnection)
+    public static void IniciarSesion()
     {
         try
         {
-            pConnection.disconnect();
-            pConnection = null;
+            Scanner scan = new Scanner(System.in);
+            System.out.print("Ingrese el nombre del usuario: ");
+            String lUsuario = scan.nextLine();
+            System.out.print("Ingrese la clave: ");
+            String lClave = scan.nextLine();
+            
+            XMPP.gConnection = new XMPPConnection(XMPP.gConfiguration);
+            XMPP.gConnection.connect(); 
+            XMPP.gConnection.login(lUsuario, lClave);
+            
+            System.out.println("Sesión iniciada correctamente.");
         }
         catch(Exception ex)
         {
@@ -51,13 +63,31 @@ public class Administracion extends Thread {
         }
     }
     
-    public static void EliminarCuenta(ConnectionConfiguration pConfiguracion, XMPPConnection pConnection)
+    public static void CerrarSesion()
     {
         try
         {
-            AccountManager lManager = pConnection.getAccountManager();
+            XMPP.gConnection.disconnect();
+            XMPP.gConnection = null;
+            
+            System.out.println("Sesión cerrada correctamente.");
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+    }
+    
+    public static void EliminarCuenta()
+    {
+        try
+        {
+            AccountManager lManager = XMPP.gConnection.getAccountManager();
             lManager.deleteAccount();
-            pConnection = null;
+            XMPP.gConnection.disconnect();
+            XMPP.gConnection = null;
+            
+            System.out.println("Cuenta eliminada correctamente.");
         }
         catch(Exception ex)
         {

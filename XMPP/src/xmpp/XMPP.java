@@ -10,17 +10,18 @@ public class XMPP {
      * @param args the command line arguments
      */
     
-    public static XMPPConnection lConnection = null;
+    public static ConnectionConfiguration gConfiguration = null;
+    public static XMPPConnection gConnection = null;
             
     public static void main(String[] args) throws XMPPException {
         
+        Conexion.ConfigurarConexion();
         int lOpcion = 0;
-        ConnectionConfiguration lConfiguration = Conexion.ConfigurarConexion();
-        
-        while (lOpcion <= 11)
+       
+        while (lOpcion <= 13)
         {
             lOpcion = Menu.MostrarMenu();
-            Menu.SeleccionarOpcion(lOpcion, lConfiguration);
+            Menu.SeleccionarOpcion(lOpcion);
         }
         
         System.out.println("<******************** Gracias por utilizar la aplicacion ********************>");

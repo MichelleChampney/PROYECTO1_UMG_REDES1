@@ -13,27 +13,54 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smackx.packet.VCard;
 
 public class Comunicacion {
     
-    public static void MostrarInformacionContacto(XMPPConnection pConnection)
+    public static void MostrarUsuarios()
     {
-        AccountManager lManager = pConnection.getAccountManager();
-              
-        for (String lAtribute : lManager.getAccountAttributes()) 
-        { 
-                System.out.println("\n" + lAtribute);
-        }
-    }
-    
-    public static void MostrarUsuarios(XMPPConnection pConnection)
-    {
-        Roster roster = pConnection.getRoster();
+        Roster roster = XMPP.gConnection.getRoster();
         Collection<RosterEntry> entries = roster.getEntries();
         System.out.println("Usuario\t\tEstado");
         for (RosterEntry entry : entries) {
             System.out.println(entry.getName() + "\t\t" + entry.getStatus());
         }
+    }
+     
+    public static void MostrarInformacionContacto()
+    {
+        try
+        {
+            Scanner scan = new Scanner(System.in);
+            System.out.println("Ingrese el contacto: ");
+            String lContacto = scan.nextLine();
+            
+            VCard card = new VCard();
+            card.load(XMPP.gConnection, lContacto);
+            System.out.println("Last Name: " + card.getLastName());
+            
+            /*AccountManager lManager = XMPP.gConnection.getAccountManager();
+
+            System.out.println("Nombre: " + lManager.getAccountAttribute("name"));
+            System.out.println("Correo: " + lManager.getAccountAttribute("email "));
+            System.out.println("Fecha de registro: " + lManager.getAccountAttribute("date"));
+            System.out.println("Estado: " + lManager.getAccountAttribute("state"));
+            System.out.println("Descripción: " + lManager.getAccountAttribute("text"));*/
+        
+         }catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+        }
+    }
+    
+    public static void DefinirMensajePresencia()
+    {
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Ingrese su mensaje de presencia: ");
+        String lMensajePresencia = scan.nextLine();
+        
+        Presence lPresence = new Presence(Presence.Type.available);
+        lPresence.setStatus(lMensajePresencia);
+        XMPP.gConnection.sendPacket(lPresence);
     }
     
     public static void EnviarRecibirNotificacion(XMPPConnection pConnection, String pUsuarioId) throws XMPPException, Exception

@@ -20,16 +20,18 @@ public class Menu {
         System.out.println("1. Registrar una nueva cuenta en el servidor");
         System.out.println("2. Iniciar sesión con una cuenta");
         System.out.println("3. Cerrar sesión con una cuenta");
-        System.out.println("4. Eliminar cuenta del servidor");
+        System.out.println("4. Eliminar la cuenta del servidor");
         System.out.println("Comunicación --------------------");
-        System.out.println("5. Mostrar todos los usuarios y su estado");
+        System.out.println("5. Mostrar todos los contactos y su estado");
         System.out.println("6. Agregar un usuario a los contactos");
-        System.out.println("7. Mostrar detalles de contacto de un usuario");
-        System.out.println("8. Participar en conversaciones grupales");
-        System.out.println("9. Enviar / recibir notificaciones");
-        System.out.println("10. Enviar archivos");
-        System.out.println("11. Recibir archivos");
-        System.out.println("12. Salir");
+        System.out.println("7. Mostrar detalles de un contacto");
+        System.out.println("8. Comunicación de 1 a 1 con cualquier contacto");
+        System.out.println("9. Participar en conversaciones grupales");
+        System.out.println("10. Definir mensaje de presencia");
+        System.out.println("11. Enviar / recibir notificaciones");
+        System.out.println("12. Enviar archivos");
+        System.out.println("13. Recibir archivos");
+        System.out.println("14. Salir");
         
         Scanner input = new Scanner(System.in);
         System.out.print("\nSeleccion una opción: ");
@@ -38,67 +40,53 @@ public class Menu {
         return lOpcion;
     }
     
-    public static void SeleccionarOpcion(int pOpcion, ConnectionConfiguration pConfiguracion) throws XMPPException
+    public static void SeleccionarOpcion(int pOpcion) throws XMPPException
     {
-        String[] lUsuario = new String[1];
-        String[] lClave = new String[1];
-        Scanner scan = new Scanner(System.in);
-        
         switch(pOpcion)
         {
             //Administracion
             case 1:
-                SolicitarDatosUsuario(lUsuario,lClave);
-                Administracion.RegistrarNuevaCuenta(pConfiguracion, lUsuario[0], lClave[0]);
-                System.out.println("Cuenta registrada correctamente.");
+                Administracion.RegistrarNuevaCuenta();
                 break;
             case 2:
-                SolicitarDatosUsuario(lUsuario,lClave);
-                XMPP.lConnection = Administracion.IniciarSesion(pConfiguracion, lUsuario[0], lClave[0]);
-                System.out.println("Sesión iniciada correctamente.");
+                Administracion.IniciarSesion();
                 break;
             case 3:
-                Administracion.CerrarSesion(XMPP.lConnection);
+                Administracion.CerrarSesion();
                 break;
             case 4:
-                Administracion.EliminarCuenta(pConfiguracion, XMPP.lConnection);
-                System.out.println("Cuenta eliminada correctamente.");
+                Administracion.EliminarCuenta();
                 break;
             //Comunicacion
             case 5:
-                Comunicacion.MostrarUsuarios(XMPP.lConnection);
+                Comunicacion.MostrarUsuarios();
                 break;
             case 6:
+                
                 break;
             case 7:
-                Comunicacion.MostrarInformacionContacto(XMPP.lConnection);
+                Comunicacion.MostrarInformacionContacto();
                 break;
             case 8:
                 break;
             case 9:
-                System.out.println("Usuario a escribir: ");
+                /*System.out.println("Usuario a escribir: ");
                 String lUsuarioEnv = scan.nextLine();
                 try {
                     Comunicacion.EnviarRecibirNotificacion(XMPP.lConnection,lUsuarioEnv);
                 } catch (Exception ex) {
                     Logger.getLogger(Menu.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                }*/
                 break;
             case 10:
-                Comunicacion.EnviarArchivo(XMPP.lConnection);
+                Comunicacion.DefinirMensajePresencia();
                 break;
-            case 11:
-                Archivo.RecibirArchivo(XMPP.lConnection);
+            case 11: 
+                Comunicacion.EnviarArchivo(XMPP.gConnection);
+                break;
+            case 12:
+                Archivo.RecibirArchivo(XMPP.gConnection);
                 break;
         }
-    }
-    
-    private static void SolicitarDatosUsuario(String[] pUsuario, String[] pClave)
-    {
-        Scanner scan = new Scanner(System.in);
-        System.out.print("Ingrese el nombre del usuario: ");
-        pUsuario[0] = scan.nextLine();
-        System.out.print("Ingrese el nombre la clave: ");
-        pClave[0] = scan.nextLine();
     }
 }
