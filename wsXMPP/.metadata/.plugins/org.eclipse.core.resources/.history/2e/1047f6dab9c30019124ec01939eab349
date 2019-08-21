@@ -1,0 +1,115 @@
+package com.xmpp.tarea;
+
+import java.util.Scanner;
+
+import com.xmpp.imp.XmppClient;
+
+/**
+ * Hello world!
+ *
+ */
+public class App {
+	public static void main(String[] args) throws Exception {
+
+		/*
+		 * String username = "ben1806"; String password = "abcd1234"; "amanda1"
+		 */
+
+		// Initialize variables
+		Scanner opcion = new Scanner(System.in);
+		String opcionMenu = "";
+		String username = "";
+		String password = "";
+		String buddyJID = "";
+		String buddyName = "";
+		String userCreate = "";
+		String passwordCreate = "";
+		String grupo = "";
+
+		System.out.println("Iniciar sesion");
+
+		// Get user for login
+		System.out.println("Usuario");
+		username = opcion.nextLine();
+
+		// Get Password for login
+		System.out.println("Contrasena");
+		password = opcion.nextLine();
+
+		// Set variables of server and port
+		XmppClient xmppManager = new XmppClient("alumchat.xyz", 5222);
+
+		// Init connection to the server
+		xmppManager.init();
+		// Perform login with user and password
+		xmppManager.performLogin(username, password);
+		// Set status available
+		xmppManager.setStatus(true, "Hello everyone");
+		// Get user basic information
+		xmppManager.userInfo(username);
+
+		//Start with the menu, already loged in
+		while (!opcionMenu.equalsIgnoreCase("7")) {
+
+			System.out.println(
+					"1. Iniciar chat /n 2. Crear Usuario /n 3. Eliminar cuenta /n 4. Usuarios Conectados /n 5. Recibir Archivo /n 6. Crear Grupo /n 7.Salir");
+			opcionMenu = opcion.nextLine();
+
+			if (opcionMenu.equalsIgnoreCase("1")) {
+
+				System.out.println("Ingrese JID");
+				buddyJID = opcion.nextLine();
+
+				System.out.println("Ingrese buddyName");
+				buddyName = opcion.nextLine();
+
+				xmppManager.createEntry(buddyJID, buddyName);
+
+				Scanner teclado = new Scanner(System.in);
+
+				while (xmppManager.isConnected()) {
+
+					String cadena = teclado.nextLine();
+
+					if (!cadena.isEmpty()) {
+
+						if (cadena.contains("EXIT")) {
+							System.out.println("Hasta luego");
+							xmppManager.destroy();
+
+						} else {
+							xmppManager.sendMessage(cadena, buddyJID + "@alumchat.xyz");
+
+						}
+
+					}
+
+				}
+
+				teclado.close();
+
+			} else if (opcionMenu.equalsIgnoreCase("2")) {
+				System.out.println("Ingrese Usuario");
+				userCreate = opcion.nextLine();
+
+				System.out.println("Ingrese Contrasena");
+				passwordCreate = opcion.nextLine();
+
+				xmppManager.createAccountForUser(userCreate, passwordCreate);
+			} else if (opcionMenu.equalsIgnoreCase("3")) {
+				xmppManager.deleteAccountForUser();
+			} else if (opcionMenu.equalsIgnoreCase("4")) {
+				xmppManager.userConnected();
+			} else if (opcionMenu.equalsIgnoreCase("5")) {
+				xmppManager.recibirArchivo();
+			} else if (opcionMenu.equalsIgnoreCase("6")) {
+				System.out.println("Ingrese nombre del grupo");
+				userCreate = opcion.nextLine();
+				xmppManager.groupChatCreate(grupo, grupo, grupo);
+			}
+
+		}
+
+		opcion.close();
+	}
+}
