@@ -2,7 +2,7 @@
 
 ## wsXMPP project functions
 1. Create chat one to one.
-2. Create new user in the server.
+2. Create new user account in the server.
 3. Delete current account on the server.
 4. Show connected users.
 5. Receive file.
@@ -16,9 +16,9 @@
 3. Manage of the account.
 4. Basic information of the current user and the users in the server.
 5. Creates chats, shows when the other user send a message as typing and then the receive the message.
-6. Is able to create to different type of chats.
+6. The project is able to create to different type of chats.
 
-## USE wsXMPP project
+## Use of wsXMPP project
 * Download the Spring Tool Suite from [https://spring.io/tools3/sts/all
 ](https://spring.io/tools3/sts/all
 )
@@ -36,12 +36,15 @@
     * Clic on OK in the window.
 * Add the new environment variable to the variable PATH.
     * Search the variable with the name PATH.
-    * Clic edit in system variables, it wil open a new window were we have to add the new path.
+    * Clic edit in system variables, it will open a new window were we have to add the new path.
     * Add ;%M2_HOME%\bin at the end of the value of the variable.
+    ```bash
+    ;%M2_HOME%\bin
+    ```
     * Clic on OK in all the windows thara ere prompted.
 * Verify maven is install
     * Windows + R, then write cmd and press Enter.
-    * Write in the command line mvn -v , this command is te equivalent to mvn -version or mvn --version.
+    * Write in the command line mvn -v , this command is the equivalent to mvn -version or mvn --version.
 
     ```bash
     mvn -v
