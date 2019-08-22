@@ -1,4 +1,23 @@
 # PROJECT_UMG_NETWORKS1 Use of an existing protocol
+
+# wsXMPP project functions
+1. Create chat one to one.
+2. Create new user in the server.
+3. Delete current account on the server.
+4. Show connected users.
+5. Receive file.
+6. Create a roster chat group.
+7. Send file.
+8. Create a multi user chat group.
+
+# wsXMPP project characteristics
+1. Use of the existing protocol XMPP.
+2. Direct connection with the server.
+3. Manage of the account.
+4. Basic information of the current user and the users in the server.
+5. Creates chats, shows when the other user send a message as typing and then the receive the message.
+6. Is able to create to different type of chats.
+
 # USE wsXMPP project
 1. Download the Spring Tool Suite from https://spring.io/tools3/sts/all
 2. Download the maven binary zip apache-maven-3.6.1-bin.zip from https://maven.apache.org/download.cgi 
