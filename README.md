@@ -9,6 +9,11 @@
 6. Create a roster chat group.
 7. Send files.
 8. Create a multi user chat group.
+9. Add user as contact
+10. Log out
+11. User specific information.
+12. Send group message.
+13. Set a presence message.
 
 ## wsXMPP project characteristics
 1. Use of the existing protocol XMPP.
