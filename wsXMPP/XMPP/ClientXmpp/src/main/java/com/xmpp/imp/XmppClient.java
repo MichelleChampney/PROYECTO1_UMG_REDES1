@@ -3,7 +3,6 @@ package com.xmpp.imp;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -13,18 +12,12 @@ import org.jivesoftware.smack.ChatManager;
 import org.jivesoftware.smack.ChatManagerListener;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.MessageListener;
-import org.jivesoftware.smack.PacketCollector;
 import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.Roster;
 import org.jivesoftware.smack.RosterEntry;
 import org.jivesoftware.smack.RosterGroup;
-import org.jivesoftware.smack.SmackConfiguration;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.filter.AndFilter;
-import org.jivesoftware.smack.filter.FromContainsFilter;
-import org.jivesoftware.smack.filter.PacketFilter;
-import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
@@ -40,6 +33,7 @@ import org.jivesoftware.smackx.filetransfer.FileTransferRequest;
 import org.jivesoftware.smackx.filetransfer.IncomingFileTransfer;
 import org.jivesoftware.smackx.filetransfer.OutgoingFileTransfer;
 import org.jivesoftware.smackx.muc.MultiUserChat;
+import org.jivesoftware.smackx.packet.VCard;
 
 public class XmppClient {
 
@@ -88,9 +82,6 @@ public class XmppClient {
 		 */
 		chatManager = connection.getChatManager();
 		messageListener = new MyMessageListener();
-		// GroupChat group = new GroupChat(connection, "RoomPrueba");
-		// group.join("amanda1");
-		// System.out.println(group.getParticipantCount());
 
 		/**
 		 * Create chat listener to be updated of any new message in the conversation
@@ -319,8 +310,9 @@ public class XmppClient {
 	 * Shows the current user information
 	 * 
 	 * @param user
+	 * @throws XMPPException
 	 */
-	public void userInfo(String user) {
+	public void userInfo(String user) throws XMPPException {
 		// Generate the roster with the current connection
 		Roster roster = connection.getRoster();
 		// Gets all the users in the roster
@@ -335,14 +327,25 @@ public class XmppClient {
 			if (entry.getUser().equalsIgnoreCase(user)) {
 				// Looks for the specific entry
 				presence = roster.getPresence(user + "@alumchat.xyz");
+				VCard card = new VCard();
+				card.load(connection, user + "@alumchat.xyz");
 
 				// Validates if it's available or not to show contact's information
 				if (presence.getType() == Presence.Type.available) {
-					System.out.println("INFO: DISPONIBLE " + entry.getUser() + " - " + presence.getType() + " - "
-							+ entry.getName());
+					System.out.println("INFO: DISPONIBLE Usuario: " + entry.getUser() + " - Nombre: "
+							+ card.getFirstName() + " " + card.getLastName() + " - presencia: " + presence.getType()
+							+ " - Alias: " + entry.getName());
 				} else {
-					System.out.println("INFO: DESACTIVADO " + entry.getUser() + " - " + presence.getType() + " - "
-							+ entry.getName());
+					System.out.println("INFO: DESACTIVADO Usuario: " + entry.getUser() + " - Nombre: "
+							+ card.getFirstName() + " " + card.getLastName() + " - presencia: " + presence.getType()
+							+ " - Alias: " + entry.getName());
+				}
+
+				// Creates entry with the user
+				RosterEntry entry2 = roster.getEntry(user);
+				// Search for groups
+				for (RosterGroup groups : entry2.getGroups()) {
+					System.out.println("Grupo " + groups.getName());
 				}
 
 				flag = 1;
@@ -356,6 +359,32 @@ public class XmppClient {
 	}
 
 	/**
+	 * Adds contact to a roster group
+	 * 
+	 * @param user
+	 */
+	public void addContact(String user) {
+
+		try {
+			// Set the subscription mode
+			Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
+			// Creates the connection
+			Roster roster = connection.getRoster();
+
+			// Users group review
+			if (!roster.contains(user)) {
+				// Add contact
+				roster.createEntry(user + "@alumchat.xyz", user, new String[] { "Friends" });
+				System.out.println("Usuario agregado.");
+			} else
+				// User is already in the group
+				System.out.println("Usuario ya fue agregado.");
+		} catch (XMPPException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
 	 * Send file to specific user
 	 * 
 	 * @throws XMPPException
@@ -364,11 +393,8 @@ public class XmppClient {
 		// Create the file transfer manager
 		FileTransferManager manager = new FileTransferManager(connection);
 		// Create the outgoing file transfer
-		// OutgoingFileTransfer transfer =
-		// manager.createOutgoingFileTransfer("amanda1@alumchat.xyz");
 		OutgoingFileTransfer transfer = manager.createOutgoingFileTransfer(user);
 		// Send the file
-		// File file = new File("C:\\Users\\User\\Desktop\\Test.txt");
 		File file = new File(fileURL);
 		transfer.sendFile(file, message);
 		while (!transfer.isDone()) {
@@ -425,370 +451,122 @@ public class XmppClient {
 	}
 
 	/**
-	 * Creates a roster group and add all users in roster to it
+	 * Creates a roster group
 	 * 
-	 * @param userName
 	 * @param groupName
 	 */
-	public void addUserToGroup(String userName, String groupName) {
-		// Generate the roster with the current connection
-		Roster roster = connection.getRoster();
-		// Searchs for a group if it does not exists creates it
-		RosterGroup group = roster.getGroup(groupName);
-		if (group == null) {
-			System.out.println("Crea grupo");
-			group = roster.createGroup(groupName);
-		}
-		// Search entries and add them if they are not in the group
-		RosterEntry entry = roster.getEntry(userName);
-		if (entry != null) {
-			try {
-				System.out.println("Agrega entrada");
-				group.addEntry(entry);
-			} catch (XMPPException e) {
-				e.printStackTrace();
-			}
-		}
+	public void createGroup(String groupName) {
 
+		try {
+			// Generate the roster with the current connection
+			Roster roster = connection.getRoster();
+			roster.createGroup(groupName);
+			System.out.println("Grupo creado con éxito.");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
-	 * Creates a multiuser chat
+	 * Creates a multi user chat group
 	 * 
-	 * @param groupId
 	 * @param groupName
-	 * @param nickname
-	 * @throws XMPPException
 	 */
-	public void groupChatCreate(String groupId, String groupName, String nickname) throws XMPPException {
-		// Initialize the multiUserChat
-		MultiUserChat muc = new MultiUserChat(connection, groupId + "@alumchat.xyz");
-		// Create the multiUserChat
-		muc.create(nickname);
-		Form form = muc.getConfigurationForm();
-		Form submitForm = form.createAnswerForm();
-		for (Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
-			FormField field = (FormField) fields.next();
-			if (!FormField.TYPE_HIDDEN.equals(field.getType()) && field.getVariable() != null) {
-				submitForm.setDefaultAnswer(field.getVariable());
-			}
-		}
-		// Set owners and configurations of the room
-		List<String> owners = new ArrayList<String>();
-		owners.add(connection.getUser().toString());
-		submitForm.setAnswer("muc#roomconfig_roomowners", owners);
-		submitForm.setAnswer("muc#roomconfig_persistentroom", true);
-		submitForm.setAnswer("muc#roomconfig_roomdesc", groupName);
-		muc.sendConfigurationForm(submitForm);
+	public void groupChatCreate(String groupName) {
+		try {
 
+			// Creates a multi user chat group
+			MultiUserChat muc = new MultiUserChat(connection, groupName + "@conference.alumchat.xyz");
+			muc.create(groupName);
+			// Group configuration
+			Form form = muc.getConfigurationForm();
+			Form submitForm = form.createAnswerForm();
+			for (Iterator<FormField> fields = form.getFields(); fields.hasNext();) {
+				FormField field = (FormField) fields.next();
+				if (!FormField.TYPE_HIDDEN.equals(field.getType()) && field.getVariable() != null) {
+					submitForm.setDefaultAnswer(field.getVariable());
+				}
+			}
+
+			// Set owners and configurations of the room
+			List<String> owners = new ArrayList<String>();
+			owners.add(connection.getUser());
+			submitForm.setAnswer("muc#roomconfig_roomowners", owners);
+			submitForm.setAnswer("muc#roomconfig_persistentroom", true);
+			submitForm.setAnswer("muc#roomconfig_roomdesc", groupName);
+			muc.sendConfigurationForm(submitForm);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	public class GroupChat {
+	public void addUserToGroup(String groupName, String user) {
 
-		private XMPPConnection connection;
-		private String room;
-		private String nickname = null;
-		private boolean joined = false;
-		private List<String> participants = new ArrayList<String>();
+		try {
+			// Generate the roster with the current connection
+			Roster roster = connection.getRoster();
+			// Search for a group if it does not exists creates it
+			RosterGroup group = roster.getGroup(groupName + "@alumchat.xyz");
+			// Search entries and add them if they are not in the group
+			RosterEntry entry = roster.getEntry(user + "@alumchat.xyz");
+			if (entry != null) {
+				group.addEntry(entry);
+				System.out.println("Contacto agregado exitosamente");
+			}
+		} catch (XMPPException e) {
+			e.printStackTrace();
+		}
+	}
 
-		private PacketFilter presenceFilter;
-		private PacketFilter messageFilter;
-		private PacketCollector messageCollector;
+	/**
+	 * 
+	 * Send message to the multi user chat
+	 * 
+	 * @param group
+	 * @param message
+	 */
+	public void sendMessageToGroup(String group, String message) {
 
-		/**
-		 * Creates a new group chat with the specified connection and room name. Note:
-		 * no information is sent to or received from the server until you attempt to
-		 * {@link #join(String) join} the chat room. On some server implementations, the
-		 * room will not be created until the first person joins it.
-		 * <p>
-		 *
-		 * Most XMPP servers use a sub-domain for the chat service (eg chat.example.com
-		 * for the XMPP server example.com). You must ensure that the room address
-		 * you're trying to connect to includes the proper chat sub-domain.
-		 *
-		 * @param connection the XMPP connection.
-		 * @param room       the name of the room in the form "roomName@service", where
-		 *                   "service" is the hostname at which the multi-user chat
-		 *                   service is running.
-		 */
-		public GroupChat(XMPPConnection connection, String room) {
-			this.connection = connection;
-			this.room = room;
-			System.out.println("Room " + room);
-			// Create a collector for all incoming messages.
-			messageFilter = new AndFilter(new FromContainsFilter(room), new PacketTypeFilter(Message.class));
-			messageFilter = new AndFilter(messageFilter, new PacketFilter() {
-				public boolean accept(Packet packet) {
-					Message msg = (Message) packet;
-					return msg.getType() == Message.Type.groupchat;
+		try {
+			// Starts the multi user chat
+			MultiUserChat muc = new MultiUserChat(connection, group + "@conference.alumchat.xyz");
+			// Verifies the group exist
+			if (muc != null) {
+				// User joins to the chat
+				muc.join(connection.getUser().replace("@alumchat.xyz/Smack", ""));
+				// Send message
+				muc.sendMessage(message);
+				// Sets listener
+				muc.addMessageListener(new TaxiMultiListener());
+				// Keeps sending message
+				if (!message.contains("EXIT")) {
+					muc.sendMessage(message);
 				}
-			});
-			messageCollector = connection.createPacketCollector(messageFilter);
-			// Create a listener for all presence updates.
-			presenceFilter = new AndFilter(new FromContainsFilter(room), new PacketTypeFilter(Presence.class));
-			connection.addPacketListener(new PacketListener() {
-				public void processPacket(Packet packet) {
-					Presence presence = (Presence) packet;
-					String from = presence.getFrom();
-					System.out.println("Presence " + from);
-					if (presence.getType() == Presence.Type.available) {
-						synchronized (participants) {
-							if (!participants.contains(from)) {
-								participants.add(from);
-							}
-						}
-					} else if (presence.getType() == Presence.Type.unavailable) {
-						synchronized (participants) {
-							participants.remove(from);
-						}
-					}
-				}
-			}, presenceFilter);
-		}
 
-		/**
-		 * Returns the name of the room this GroupChat object represents.
-		 *
-		 * @return the groupchat room name.
-		 */
-		public String getRoom() {
-			return room;
-		}
+				muc.leave();
 
-		/**
-		 * Joins the chat room using the specified nickname. If already joined using
-		 * another nickname, this method will first leave the room and then re-join
-		 * using the new nickname. The default timeout of 5 seconds for a reply from the
-		 * group chat server that the join succeeded will be used.
-		 *
-		 * @param nickname the nickname to use.
-		 * @throws XMPPException if an error occurs joining the room. In particular, a
-		 *                       409 error can occur if someone is already in the group
-		 *                       chat with the same nickname.
-		 */
-		public synchronized void join(String nickname) throws XMPPException {
-			join(nickname, SmackConfiguration.getPacketReplyTimeout());
-		}
-
-		/**
-		 * Joins the chat room using the specified nickname. If already joined as
-		 * another nickname, will leave as that name first before joining under the new
-		 * name.
-		 *
-		 * @param nickname the nickname to use.
-		 * @param timeout  the number of milleseconds to wait for a reply from the group
-		 *                 chat that joining the room succeeded.
-		 * @throws XMPPException if an error occurs joining the room. In particular, a
-		 *                       409 error can occur if someone is already in the group
-		 *                       chat with the same nickname.
-		 */
-		public synchronized void join(String nickname, long timeout) throws XMPPException {
-			if (nickname == null || nickname.equals("")) {
-				throw new IllegalArgumentException("Nickname must not be null or blank.");
+				System.out.println("Chat finalizado");
 			}
-			// If we've already joined the room, leave it before joining under a new
-			// nickname.
-			if (joined) {
-				leave();
-			}
-			// We join a room by sending a presence packet where the "to"
-			// field is in the form "roomName@service/nickname"
-			Presence joinPresence = new Presence(Presence.Type.available);
-			System.out.println(room + "@alumchat.xyz/" + nickname);
-			joinPresence.setTo(room + "@alumchat.xyz/" + nickname);
-			// Wait for a presence packet back from the server.
-			PacketFilter responseFilter = new AndFilter(new FromContainsFilter(room + "/" + nickname),
-					new PacketTypeFilter(Presence.class));
-			PacketCollector response = connection.createPacketCollector(responseFilter);
-			// Send join packet.
-			connection.sendPacket(joinPresence);
-			// Wait up to a certain number of seconds for a reply.
-			Presence presence = (Presence) response.nextResult(timeout);
-			response.cancel();
-			if (presence == null) {
-				throw new XMPPException("No response from server.");
-			} else if (presence.getError() != null) {
-				throw new XMPPException(presence.getError());
-			}
-			this.nickname = nickname;
-			joined = true;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+	}
 
-		/**
-		 * Returns true if currently in the group chat (after calling the
-		 * {@link #join(String)} method.
-		 *
-		 * @return true if currently in the group chat room.
-		 */
-		public boolean isJoined() {
-			return joined;
-		}
+	/**
+	 * Listener for the group
+	 * 
+	 * @author User
+	 *
+	 */
+	public static class TaxiMultiListener implements PacketListener {
+		// Keeps listening and notifies when it gets a message
+		public void processPacket(Packet packet) {
+			Message message = (Message) packet;
+			String from = message.getFrom();
+			String body = message.getBody();
+			String.format("Recibiendo mensaje '%1$s' de %2$s", body, from);
 
-		/**
-		 * Leave the chat room.
-		 */
-		public synchronized void leave() {
-			// If not joined already, do nothing.
-			if (!joined) {
-				return;
-			}
-			// We leave a room by sending a presence packet where the "to"
-			// field is in the form "roomName@service/nickname"
-			Presence leavePresence = new Presence(Presence.Type.unavailable);
-			leavePresence.setTo(room + "/" + nickname);
-			connection.sendPacket(leavePresence);
-			// Reset participant information.
-			participants = new ArrayList<String>();
-			nickname = null;
-			joined = false;
-		}
-
-		/**
-		 * Returns the nickname that was used to join the room, or <tt>null if not
-		 * currently joined.
-		 *
-		 * @return the nickname currently being used.
-		 */
-		public String getNickname() {
-			return nickname;
-		}
-
-		/**
-		 * Returns the number of participants in the group chat.
-		 * <p>
-		 *
-		 * Note: this value will only be accurate after joining the group chat, and may
-		 * fluctuate over time. If you query this value directly after joining the group
-		 * chat it may not be accurate, as it takes a certain amount of time for the
-		 * server to send all presence packets to this client.
-		 *
-		 * @return the number of participants in the group chat.
-		 */
-		public int getParticipantCount() {
-			synchronized (participants) {
-				return participants.size();
-			}
-		}
-
-		/**
-		 * Returns an Iterator (of Strings) for the list of fully qualified participants
-		 * in the group chat. For example, "conference@chat.jivesoftware.com/SomeUser".
-		 * Typically, a client would only display the nickname of the participant. To
-		 * get the nickname from the fully qualified name, use the
-		 * {@link org.jivesoftware.smack.util.StringUtils#parseResource(String)} method.
-		 * Note: this value will only be accurate after joining the group chat, and may
-		 * fluctuate over time.
-		 *
-		 * @return an Iterator for the participants in the group chat.
-		 */
-		public Iterator<String> getParticipants() {
-			synchronized (participants) {
-				return Collections.unmodifiableList(new ArrayList<String>(participants)).iterator();
-			}
-		}
-
-		/**
-		 * Adds a packet listener that will be notified of any new Presence packets sent
-		 * to the group chat. Using a listener is a suitable way to know when the list
-		 * of participants should be re-loaded due to any changes.
-		 *
-		 * @param listener a packet listener that will be notified of any presence
-		 *                 packets sent to the group chat.
-		 */
-		public void addParticipantListener(PacketListener listener) {
-			connection.addPacketListener(listener, presenceFilter);
-		}
-
-		/**
-		 * Sends a message to the chat room.
-		 *
-		 * @param text the text of the message to send.
-		 * @throws XMPPException if sending the message fails.
-		 */
-		public void sendMessage(String text) throws XMPPException {
-			Message message = new Message(room, Message.Type.groupchat);
-			message.setBody(text);
-			connection.sendPacket(message);
-		}
-
-		/**
-		 * Creates a new Message to send to the chat room.
-		 *
-		 * @return a new Message addressed to the chat room.
-		 */
-		public Message createMessage() {
-			return new Message(room, Message.Type.groupchat);
-		}
-
-		/**
-		 * Sends a Message to the chat room.
-		 *
-		 * @param message the message.
-		 * @throws XMPPException if sending the message fails.
-		 */
-		public void sendMessage(Message message) throws XMPPException {
-			connection.sendPacket(message);
-		}
-
-		/**
-		 * Polls for and returns the next message, or <tt>null if there isn't a message
-		 * immediately available. This method provides significantly different
-		 * functionalty than the {@link #nextMessage()} method since it's non-blocking.
-		 * In other words, the method call will always return immediately, whereas the
-		 * nextMessage method will return only when a message is available (or after a
-		 * specific timeout).
-		 *
-		 * @return the next message if one is immediately available and <tt>null
-		 *         otherwise.
-		 */
-		public Message pollMessage() {
-			return (Message) messageCollector.pollResult();
-		}
-
-		/**
-		 * Returns the next available message in the chat. The method call will block
-		 * (not return) until a message is available.
-		 *
-		 * @return the next message.
-		 */
-		public Message nextMessage() {
-			return (Message) messageCollector.nextResult();
-		}
-
-		/**
-		 * Returns the next available message in the chat. The method call will block
-		 * (not return) until a packet is available or the <tt>timeout has elapased. If
-		 * the timeout elapses without a result, <tt>null will be returned.
-		 *
-		 * @param timeout the maximum amount of time to wait for the next message.
-		 * @return the next message, or <tt>null if the timeout elapses without a
-		 *         message becoming available.
-		 */
-		public Message nextMessage(long timeout) {
-			return (Message) messageCollector.nextResult(timeout);
-		}
-
-		/**
-		 * Adds a packet listener that will be notified of any new messages in the group
-		 * chat. Only "group chat" messages addressed to this group chat will be
-		 * delivered to the listener. If you wish to listen for other packets that may
-		 * be associated with this group chat, you should register a PacketListener
-		 * directly with the XMPPConnection with the appropriate PacketListener.
-		 *
-		 * @param listener a packet listener.
-		 */
-		public void addMessageListener(PacketListener listener) {
-			connection.addPacketListener(listener, messageFilter);
-		}
-
-		public void finalize() throws Throwable {
-			super.finalize();
-			try {
-				if (messageCollector != null) {
-					messageCollector.cancel();
-				}
-			} catch (Exception e) {
-			}
 		}
 	}
 
