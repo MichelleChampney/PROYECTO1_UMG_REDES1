@@ -12,7 +12,8 @@ public class App {
 	public static void main(String[] args) throws Exception {
 
 		/*
-		 * String username = "ben1806"; String password = "abcd1234"; "amanda1"
+		 * Credentials username = "ben1806"; password = "abcd1234"; Extra user for chat
+		 * "amanda1"
 		 */
 
 		// Initialize variables
@@ -28,14 +29,14 @@ public class App {
 		String fileURL = "";
 		String message = "";
 
-		System.out.println("Iniciar sesion");
+		System.out.println("Iniciar sesión");
 
 		// Get user for login
 		System.out.println("Usuario");
 		username = opcion.nextLine();
 
 		// Get Password for login
-		System.out.println("Contrasena");
+		System.out.println("Contraseña");
 		password = opcion.nextLine();
 
 		// Set variables of server and port
@@ -47,15 +48,13 @@ public class App {
 		xmppManager.performLogin(username, password);
 		// Set status available
 		xmppManager.setStatus(true, "Hello everyone");
-		// Get user basic information
-		xmppManager.userInfo(username);
 
 		// Start with the menu, already logged in
-		while (!opcionMenu.equalsIgnoreCase("9")) {
+		while (!opcionMenu.equalsIgnoreCase("14")) {
 
 			// Getting option to perform
 			System.out.println(
-					"1. Iniciar chat /n 2. Crear Usuario /n 3. Eliminar cuenta /n 4. Usuarios Conectados /n 5. Recibir Archivo /n 6. Crear Grupo tipo roster /n 7. Enviar archivo /n 8. Crear grupo MultiChat /n 9.Salir");
+					"1. Iniciar chat /n 2. Crear Usuario /n 3. Eliminar cuenta /n 4. Usuarios Conectados /n 5. Recibir Archivo /n 6. Crear Grupo tipo roster /n 7. Enviar archivo /n 8. Crear grupo MultiChat /n 9. Agregar Contacto /n 10. Cerrar Sesión /n 11. Información de usuario /n 12. Enviar mensaje grupal /n 13. Definir estado de presencia /n 14. Salir");
 			opcionMenu = opcion.nextLine();
 
 			// Initialize chat
@@ -85,7 +84,7 @@ public class App {
 						// To exit the chat and log out use the word EXIT
 						if (cadena.contains("EXIT")) {
 							System.out.println("Hasta luego");
-							xmppManager.destroy();
+							return;
 
 						} else {
 							// Sends the message to the buddy
@@ -130,7 +129,17 @@ public class App {
 				System.out.println("Ingrese nombre del grupo");
 				grupo = opcion.nextLine();
 				// Invoke the method to create the group
-				xmppManager.groupChatCreate(grupo, grupo, grupo);
+				xmppManager.createGroup(grupo);
+				// Waits for the user and add it to the chat
+				String agregar = "1";
+				while (agregar.equalsIgnoreCase("1")) {
+					System.out.println("Ingrese usuario para agregar al grupo");
+					userCreate = opcion.nextLine();
+					xmppManager.addUserToGroup(grupo, userCreate);
+					System.out.println("¿Desea agregar otro usuario al grupo? Presione 1");
+					agregar = opcion.nextLine();
+				}
+
 			} // send file to specific user
 			else if (opcionMenu.equalsIgnoreCase("7")) {
 				// Waits for the path of the file
@@ -149,11 +158,43 @@ public class App {
 				// Waits for the name of the group and create a multiuser chat
 				System.out.println("Ingrese nombre para el chat grupal");
 				grupo = opcion.nextLine();
-				// Waits for the user and add it to the chat
-				System.out.println("Ingrese usuario para agregar al chat");
-				userCreate = opcion.nextLine();
 				// Invoke the method to create the group
-				xmppManager.addUserToGroup(userCreate, grupo);
+				xmppManager.groupChatCreate(grupo);
+			} // Adds a user as contact
+			else if (opcionMenu.equalsIgnoreCase("9")) {
+				// Waits for the user and add it as a contact
+				System.out.println("Ingrese usuario para agregar como contacto");
+				userCreate = opcion.nextLine();
+				// Invokes the method to add a contact
+				xmppManager.addContact(userCreate);
+			} // Log out
+			else if (opcionMenu.equalsIgnoreCase("10")) {
+				// Invokes the method to log out
+				xmppManager.destroy();
+			} // Contact's information
+			else if (opcionMenu.equalsIgnoreCase("11")) {
+				// Waits for the user
+				System.out.println("Ingrese usuario");
+				username = opcion.nextLine();
+				// Get user basic information
+				xmppManager.userInfo(username);
+			} // Send message to group
+			else if (opcionMenu.equalsIgnoreCase("12")) {
+				// Waits for the group
+				System.out.println("Ingrese nombre de grupo");
+				grupo = opcion.nextLine();
+				// Waits for the message
+				System.out.println("Ingrese mensaje");
+				message = opcion.nextLine();
+				// Invokes the method to send the message
+				xmppManager.sendMessageToGroup(grupo, message);
+			} // Set current user status
+			else if (opcionMenu.equalsIgnoreCase("13")) {
+				// Waits for the group
+				System.out.println("Ingrese mensaje de presencia");
+				message = opcion.nextLine();
+				// Set status available
+				xmppManager.setStatus(true, message);
 			}
 
 		}
