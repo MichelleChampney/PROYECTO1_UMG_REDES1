@@ -171,6 +171,7 @@ public class App {
 			else if (opcionMenu.equalsIgnoreCase("10")) {
 				// Invokes the method to log out
 				xmppManager.destroy();
+				opcionMenu = "14";
 			} // Contact's information
 			else if (opcionMenu.equalsIgnoreCase("11")) {
 				// Waits for the user
