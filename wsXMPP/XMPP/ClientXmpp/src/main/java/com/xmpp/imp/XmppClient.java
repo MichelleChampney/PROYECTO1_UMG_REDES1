@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 
 import org.jivesoftware.smack.AccountManager;
 import org.jivesoftware.smack.Chat;
@@ -149,6 +150,7 @@ public class XmppClient {
 	public void destroy() {
 		if (connection != null && connection.isConnected()) {
 			connection.disconnect();
+			System.out.println("Bye Bye");
 		}
 	}
 
@@ -528,6 +530,8 @@ public class XmppClient {
 	 */
 	public void sendMessageToGroup(String group, String message) {
 
+		Scanner scan = new Scanner(System.in);
+
 		try {
 			// Starts the multi user chat
 			MultiUserChat muc = new MultiUserChat(connection, group + "@conference.alumchat.xyz");
@@ -539,18 +543,21 @@ public class XmppClient {
 				muc.sendMessage(message);
 				// Sets listener
 				muc.addMessageListener(new TaxiMultiListener());
-				// Keeps sending message
-				if (!message.contains("EXIT")) {
+				// Keeps sending messages
+				while (message.equalsIgnoreCase("EXIT") == false) {
+					System.out.println("Ingrese el mensaje");
+					message = scan.nextLine();
 					muc.sendMessage(message);
 				}
-
+				// Leaves the chat
 				muc.leave();
 
 				System.out.println("Chat finalizado");
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("Error: " + e.getMessage());
 		}
+
 	}
 
 	/**
@@ -565,8 +572,8 @@ public class XmppClient {
 			Message message = (Message) packet;
 			String from = message.getFrom();
 			String body = message.getBody();
-			String.format("Recibiendo mensaje '%1$s' de %2$s", body, from);
-
+			if (body != null)
+				System.out.println(String.format("Receiving message from: '%1$s' from %2$s", body, from));
 		}
 	}
 
